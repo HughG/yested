@@ -1,6 +1,6 @@
 package net.yested
 
-import jquery.jq
+import net.yested.jquery.jQuery
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.HTMLInputElement
 import org.w3c.dom.HTMLTextAreaElement
@@ -147,7 +147,7 @@ import kotlin.reflect.KProperty
     operator  fun String.rangeTo(value:String):Unit = element.setAttribute(this, value)
 
     operator  fun String.unaryPlus(): Unit {
-        jq(element).append(this)
+        jQuery(element).append(this)
     }
 
     operator  fun Component.unaryPlus() {
@@ -163,7 +163,7 @@ import kotlin.reflect.KProperty
     }
 
      fun setContent(text:String) {
-        jq(element).text(text)
+        jQuery(element).text(text)
     }
 
      fun setChild(component:Component) {
@@ -345,7 +345,7 @@ import kotlin.reflect.KProperty
     }
 
      fun scrollDown() {
-        element.scrollTop = (element.scrollHeight - jq(element).height().toInt()).toDouble()
+        element.scrollTop = (element.scrollHeight - jQuery(element).height().toInt()).toDouble()
     }
 
     override var data: String

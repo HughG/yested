@@ -1,15 +1,20 @@
 package net.yested.bootstrap.smartgrid
 
-import jquery.jq
 import net.yested.*
 import net.yested.bootstrap.Align
 import net.yested.bootstrap.glyphicon
+import net.yested.dom.events.TouchEvent
+import net.yested.jquery.JQueryEventObject
+import net.yested.jquery.jQuery
+import net.yested.jquery.on
+import net.yested.jqueryui.sortable
 import net.yested.layout.*
 import net.yested.layout.containers.VerticalContainer
 import net.yested.layout.containers.horizontalContainer
 import net.yested.utils.*
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.Node
+import org.w3c.dom.events.WheelEvent
 import kotlin.browser.window
 import kotlin.js.Math
 
@@ -138,14 +143,14 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
                                             size = 100.pct(),
                                             numberOfItems = 1,
                                             visibleItems = 1,
-                                            positionHandler = throttle(35, { verticalScrollBarMoved(it) }))
+                                            positionHandler = jQuery.throttle(35, { verticalScrollBarMoved(it) }))
 
     private val scrollBarHorizontal = ScrollBar(
                                             orientation = ScrollBarOrientation.HORIZONTAL,
                                             size = 100.pct(),
                                             numberOfItems = 1,
                                             visibleItems = 1,
-                                            positionHandler = throttle(35, { horizontalScrollBarMoved(it) }))
+                                            positionHandler = jQuery.throttle(35, { horizontalScrollBarMoved(it) }))
 
     private val columnHeaderContainer = Div() with {  "style".."overflow: scroll; overflow-x:hidden; overflow-y:hidden;"
         table {
@@ -283,18 +288,20 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
         var touchStartRow:Int = 0
         var horizontalScrollStart:Int = 0
 
-        jq(dataTable).on("touchstart", { event->
-            touchStartY = event.originalEvent.touches[0].clientY;
-            touchStartX = event.originalEvent.touches[0].clientX;
+        jQuery(dataTable).on("touchstart", { event ->
+            val touchEvent = event.originalEvent as TouchEvent
+            touchStartY = touchEvent.touches[0].clientY
+            touchStartX = touchEvent.touches[0].clientX
             event.preventDefault()
             touchStartRow = currentRow
             horizontalScrollStart = scrollBarHorizontal.position
         })
 
-        jq(dataTable).on("touchmove", { event->
+        jQuery(dataTable).on("touchmove", { event ->
             event.preventDefault()
-            val yUp = event.originalEvent.touches[0].clientY;
-            val xUp = event.originalEvent.touches[0].clientX;
+            val touchEvent = event.originalEvent as TouchEvent
+            val yUp = touchEvent.touches[0].clientY
+            val xUp = touchEvent.touches[0].clientX
             val diffY:Int = yUp - touchStartY
             val diffX:Int = xUp - touchStartX
 
@@ -330,20 +337,20 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
             }
         }
 
-        jq(window).on("scroll") {
-            columnHeaders?.forEach { it.repositionFilter() }
+        jQuery(window).scroll {
+            columnHeaders?.forEach { it.repositionFilter() } ?: Unit
         }
-        jq(cont.element).on("scroll") {
-            columnHeaders?.forEach { it.repositionFilter() }
+        jQuery(cont.element).scroll {
+            columnHeaders?.forEach { it.repositionFilter() } ?: Unit
         }
-        jq(window).on("resize") {
-            columnHeaders?.forEach { it.repositionFilter() }
+        jQuery(window).resize {
+            columnHeaders?.forEach { it.repositionFilter() } ?: Unit
         }
 
     }
 
     private fun recalculateVisibleRows() {
-        val viewPortHeight = jq(cont.element).height().toInt()
+        val viewPortHeight = jQuery(cont.element).height().toInt()
         visibleRows = Math.floor(viewPortHeight / rowHeight)
     }
 
@@ -574,9 +581,9 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
     }
 
     private fun updateHorizontalScrollbar() {
-        val range = jq(dataTable).width().toInt() - jq(cont.element).width().toInt()
+        val range = jQuery(dataTable).width().toInt() - jQuery(cont.element).width().toInt()
         if (range > 0) {
-            val handlerSize = range * (jq(cont.element).width().toDouble() / jq(header).width().toDouble())
+            val handlerSize = range * (jQuery(cont.element).width().toDouble() / jQuery(header).width().toDouble())
             val newHorizontalPosition = Math.min(scrollBarHorizontal.position, range.toInt())
             scrollBarHorizontal.setup(numberOfItems = range.toInt(), visibleItems = handlerSize.toInt(), newPosition = newHorizontalPosition)
             scrollBarHorizontal.setTrackerVisible(true)
@@ -599,15 +606,14 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
         }.toList()
 
     private fun makeHeaderSortable(headerDiv:HTMLElement) {
-        jq(headerDiv).disableSelection()
-        jq(headerDiv).sortable(
-                object {
-                    val update = { event: dynamic, ui: dynamic ->
+        jQuery(headerDiv).sortable(
+                options {
+                    update = eventHandler { event: dynamic, ui: dynamic ->
                         visibleColumns = readCurrentColumnLayout()
                         createRowsWithColumns()
                         redisplayTheReorderedDataSet()
                     }
-                    val delay = 150
+                    delay = 150
                 })
     }
 
@@ -641,12 +647,12 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
 
     private fun registerMouseWheelScroll() {
 
-        jq(dataTable).on("mousewheel DOMMouseScroll") { event ->
+        jQuery(dataTable).on("wheel") { event: JQueryEventObject ->
             val previousRow = currentRow
-            val e = event.originalEvent
+            val e = event.originalEvent as WheelEvent
             event.preventDefault()
-            val mouseDeltaY = toZero(e.wheelDeltaY) + toZero(e.wheelDelta) + toZero(e.detail)*(-1.0)
-            if (Math.abs(mouseDeltaY) > Math.abs(toZero(e.wheelDeltaX))) {
+            val mouseDeltaY = toZero(e.deltaY) + toZero(e.detail.toDouble())*(-1.0)
+            if (Math.abs(mouseDeltaY) > Math.abs(toZero(e.deltaX))) {
                 val deltaY = Math.max(-1.0, Math.min(1.0, (mouseDeltaY )));
                 if (deltaY < 0) {
                     currentRow = Math.min(currentRow + 1, visibleDataList.size - visibleRows)
@@ -658,10 +664,11 @@ private fun <T> clearAggregationsOfAll(group:Group<T>) {
                     scrollBarVertical.position = currentRow
                 }
             }
-            if (Math.abs(e.wheelDeltaX) > Math.abs(mouseDeltaY)) {
-                val deltaX = Math.max(-1, Math.min(1, (e.wheelDeltaX)));
-                if (deltaX != 0) {
-                    val newHorizontalScrollPosition = Math.max(0, Math.min(scrollBarHorizontal.position - deltaX * 10, scrollBarHorizontal.numberOfItems))
+            if (Math.abs(e.deltaX) > Math.abs(mouseDeltaY)) {
+                val deltaX = Math.max(-1.0, Math.min(1.0, (e.deltaX)));
+                if (deltaX != 0.0) {
+                    val newHorizontalScrollPosition =
+                            Math.max(0, Math.min(scrollBarHorizontal.position - (deltaX * 10).toInt(), scrollBarHorizontal.numberOfItems))
                     scrollBarHorizontal.position = newHorizontalScrollPosition
                     cont.element.scrollLeft = newHorizontalScrollPosition.toDouble()
                 }

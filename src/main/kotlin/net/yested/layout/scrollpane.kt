@@ -1,6 +1,6 @@
 package net.yested.layout
 
-import jquery.jq
+import net.yested.jquery.jQuery
 import net.yested.*
 import net.yested.utils.registerResizeHandler
 import org.w3c.dom.HTMLElement
@@ -29,8 +29,8 @@ import org.w3c.dom.HTMLElement
     }
 
     private fun setDimensions() {
-        val parentWidth = jq(element.parentNode as HTMLElement).width()
-        val parentHeight = jq(element.parentNode as HTMLElement).height()
+        val parentWidth = jQuery(element.parentNode as HTMLElement).width()
+        val parentHeight = jQuery(element.parentNode as HTMLElement).height()
         style = overflow("x", "width", "${parentWidth}px;", horizontal, width) + " " + overflow("y", "height", "${parentHeight}px", vertical, height)
     }
 

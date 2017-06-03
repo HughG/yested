@@ -1,11 +1,9 @@
 package net.yested.bootstrap.smartgrid
 
-import jquery.jq
 import net.yested.*
 import net.yested.bootstrap.Glyphicon
 import net.yested.bootstrap.glyphicon
-import net.yested.utils.*
-import org.w3c.dom.Element
+import net.yested.jquery.jQuery
 import kotlin.browser.window
 
 /**
@@ -35,12 +33,12 @@ class GridColumnHeader<T>(
 
     private fun positionFilter() {
 
-        val headerCellOffset = jq(this.element).offset()
-        var posY = headerCellOffset.top - jq(window).scrollTop() + jq(this.element).height() as Int
-        var posX = headerCellOffset.left - jq(window).scrollLeft()
+        val headerCellOffset = jQuery(this.element).offset()
+        val posY = headerCellOffset.top.toDouble() - jQuery(window).scrollTop() as Int + jQuery(this.element).height() as Int
+        val posX = headerCellOffset.left.toDouble() - jQuery(window).scrollLeft() as Int
 
-        jq(filterContainer!!.element).css("top", "${posY}px")
-        jq(filterContainer!!.element).css("left", "${posX}px")
+        jQuery(filterContainer!!.element).css("top", "${posY}px")
+        jQuery(filterContainer!!.element).css("left", "${posX}px")
 
     }
 
@@ -51,9 +49,9 @@ class GridColumnHeader<T>(
                 "style".."position: fixed; z-index: 1; display: none;"
             })
             createFilter(filterConfig)
-            jq(window).on("click", { event ->
+            jQuery(window).click( { event ->
                 if (filterDisplayed) {
-                    if (jq(event.target as Element).closest(filterContainer!!.element).length == 0) {
+                    if (jQuery(event.target).closest(filterContainer!!.element).length == 0) {
                         filterDisplayed = false
                         Hide().apply(filterContainer!!)
                     }

@@ -1,8 +1,9 @@
 package net.yested.bootstrap
 
-import jquery.jq
 import net.yested.*
-import net.yested.utils.sortable
+import net.yested.jquery.jQuery
+import net.yested.jqueryui.sortable
+import net.yested.utils.options
 
 /**
  * <div role="tabpanel">
@@ -50,7 +51,7 @@ private data class TabDefinition(
         element.appendComponent(content)
 
         if (canChangeOrder) {
-            jq(bar.element).sortable(object {})
+            jQuery(bar.element).sortable(options {})
         }
 
     }

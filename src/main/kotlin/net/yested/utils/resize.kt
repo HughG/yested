@@ -1,6 +1,6 @@
 package net.yested.utils
 
-import jquery.jq
+import net.yested.jquery.jQuery
 import org.w3c.dom.HTMLElement
 import kotlin.browser.window
 
@@ -8,12 +8,12 @@ private class ResizeHandler(
         val element:HTMLElement,
         val handler:(width:Number, height:Number) -> Unit) {
 
-    private var latestWidth = jq(element).width()
-    private var latestHeight = jq(element).height()
+    private var latestWidth = jQuery(element).width()
+    private var latestHeight = jQuery(element).height()
 
      fun check() {
-        val newWidth = jq(element).width()
-        val newHeight = jq(element).height()
+        val newWidth = jQuery(element).width()
+        val newHeight = jQuery(element).height()
         if (newWidth != latestWidth || newHeight != latestHeight) {
             latestWidth = newWidth
             latestHeight = newHeight

@@ -1,23 +1,10 @@
 package net.yested
 
-import jquery.JQuery
-import jquery.jq
-
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.fadeOut(duration:Int, noinline callback:()->Unit) :Unit = asDynamic().fadeOut(duration, callback)
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.fadeIn(duration:Int, noinline callback:()->Unit) :Unit = asDynamic().fadeIn(duration, callback)
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.slideUp(duration:Int, noinline callback:()->Unit) :Unit = asDynamic().slideUp(duration, callback)
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.slideDown(duration:Int, noinline callback:()->Unit) :Unit = asDynamic().slideDown(duration, callback)
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.show(noinline callback:()->Unit) :Unit = asDynamic().show(callback)
-@Suppress("NOTHING_TO_INLINE")
-inline fun JQuery.hide(noinline callback:()->Unit) :Unit = asDynamic().hide(callback)
+import net.yested.jquery.jQuery
 
 private val DURATION = 200
 private val SLIDE_DURATION = DURATION * 2
+private val SHOW_HIDE_DURATION = DURATION * 2
 
  interface Effect {
     fun apply(component:Component, callback:Function0<Unit>? = null)
@@ -34,37 +21,37 @@ private fun call(function:Function0<Unit>?) {
 
  class Show() : Effect {
     override fun apply(component: Component, callback: (() -> Unit)?) {
-        jq(component.element).show { call(callback) }
+        jQuery(component.element).show(SHOW_HIDE_DURATION) { call(callback) }
     }
 }
 
  class Hide() : Effect {
     override fun apply(component: Component, callback: (() -> Unit)?) {
-        jq(component.element).hide { call(callback) }
+        jQuery(component.element).hide(SHOW_HIDE_DURATION) { call(callback) }
     }
 }
 
  class SlideUp() : Effect {
     override fun apply(component: Component, callback:Function0<Unit>?) {
-        jq(component.element).slideUp(SLIDE_DURATION) { call(callback) }
+        jQuery(component.element).slideUp(SLIDE_DURATION) { call(callback) }
     }
 }
 
  class SlideDown : Effect {
     override fun apply(component: Component, callback: (() -> Unit)?) {
-        jq(component.element).slideDown(SLIDE_DURATION) { call(callback) }
+        jQuery(component.element).slideDown(SLIDE_DURATION) { call(callback) }
     }
 }
 
  class FadeOut : Effect {
     override fun apply(component: Component, callback: (() -> Unit)?) {
-        jq(component.element).fadeOut(DURATION) { call(callback) }
+        jQuery(component.element).fadeOut(DURATION) { call(callback) }
     }
 }
 
  class FadeIn : Effect {
     override fun apply(component: Component, callback: (() -> Unit)?) {
-        jq(component.element).fadeIn(DURATION) { call(callback) }
+        jQuery(component.element).fadeIn(DURATION) { call(callback) }
     }
 }
 

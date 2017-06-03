@@ -1,8 +1,7 @@
 package net.yested.layout.containers
 
-import jquery.jq
+import net.yested.jquery.jQuery
 import net.yested.*
-import net.yested.utils.css
 import net.yested.utils.registerResizeHandler
 import org.w3c.dom.HTMLElement
 
@@ -48,7 +47,7 @@ class VerticalContainer(val width: Dimension? = null, height: Dimension, val gap
     private fun recalculatePositions() {
 
         val gaps = (items.size - 1) * gap
-        val totalWidth = jq(element).height()
+        val totalWidth = jQuery(element).height()
         val totalFixed = items.filter { it.dimension is Pixels }.map { (it.dimension as Pixels).value }.sum()
         val totalPercents = items.filter { it.dimension is Percent }.map { (it.dimension as Percent).value }.sum()
         val dimensionAvailableToPct = totalWidth.toInt() - totalFixed - gaps
@@ -62,15 +61,15 @@ class VerticalContainer(val width: Dimension? = null, height: Dimension, val gap
             } else {
                 throw Exception("Unsupported dimension type for horizontal column width: ${item.dimension}")
             }
-            jq(item.div.element).css("top", "${position}px")
-            jq(item.div.element).css("height", "${calculatedDimension}px")
+            jQuery(item.div.element).css("top", "${position}px")
+            jQuery(item.div.element).css("height", "${calculatedDimension}px")
             position += calculatedDimension + gap
         }
     }
 
     private fun recalculateWidth() {
-        val maxHeightOfChildren = items.map { jq(it.div.element).height().toInt() }.max()
-        jq(element).css("width", "$maxHeightOfChildren")
+        val maxHeightOfChildren = items.map { jQuery(it.div.element).height().toInt() }.max()
+        jQuery(element).css("width", "$maxHeightOfChildren")
     }
 
 }

@@ -1,8 +1,9 @@
 package net.yested.bootstrap
 
-import jquery.jq
 import net.yested.*
-import net.yested.utils.sortable
+import net.yested.jquery.jQuery
+import net.yested.jqueryui.sortable
+import net.yested.utils.options
 
  enum class SelectionMode() {
     NONE(),
@@ -17,7 +18,7 @@ import net.yested.utils.sortable
     override val element = createElement("div") with {
         setAttribute("class", "list-group")
         if (sortable) {
-            jq(this).sortable({})
+            jQuery(this).sortable(options {})
         }
     }
 
@@ -32,9 +33,9 @@ import net.yested.utils.sortable
             selectedItems.addAll(newSelection)
             itemToAnchorMap.forEach {
                 if (newSelection.contains(it.key)) {
-                    jq(it.value.element).addClass("active")
+                    jQuery(it.value.element).addClass("active")
                 } else {
-                    jq(it.value.element).removeClass("active")
+                    jQuery(it.value.element).removeClass("active")
                 }
             }
             notifyListeners()
@@ -58,7 +59,7 @@ import net.yested.utils.sortable
     private fun deselectAll() {
         selectedItems.clear()
         itemToAnchorMap.values.forEach {
-            jq(it.element).removeClass("active")
+            jQuery(it.element).removeClass("active")
         }
     }
 
@@ -68,13 +69,13 @@ import net.yested.utils.sortable
 
         if (selectedItems.contains(item)) {
             selectedItems.remove(item)
-            jq(anchor.element).removeClass("active")
+            jQuery(anchor.element).removeClass("active")
         } else {
             if (selectionMode == SelectionMode.SINGLE) {
                 deselectAll()
             }
             selectedItems.add(item)
-            jq(anchor.element).addClass("active")
+            jQuery(anchor.element).addClass("active")
         }
 
         notifyListeners()

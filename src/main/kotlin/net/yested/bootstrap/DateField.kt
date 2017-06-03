@@ -1,12 +1,13 @@
 package net.yested.bootstrap
 
-import jquery.JQuery
-import jquery.jq
 import net.yested.*
+import net.yested.jquery.JQuery
+import net.yested.jquery.jQuery
+import net.yested.jquery.on
 import net.yested.utils.FormatString
 import net.yested.utils.FormatStringBuilder
 import net.yested.utils.Moment
-import net.yested.utils.on
+import net.yested.utils.options
 import org.w3c.dom.HTMLInputElement
 
 //TODO: support Locales: http://momentjs.com/docs/#/i18n/
@@ -50,14 +51,14 @@ import org.w3c.dom.HTMLInputElement
         }
 
     fun init() {
-        val param = object {
-            val format = formatString
-        }
+// TODO 2017-06-03 HughG: Is this hack still needed in Kotlin 1.1.2?
         // Hack: datetimepicker cannot handle unknown parameters, and Kotlin add a $metadata$ property to every object
-        js("delete param.\$metadata$")
-        jq(element).datetimepicker(param)
+//        js("delete param.\$metadata$")
+        jQuery(element).datetimepicker(options {
+            format = formatString
+        })
 
-        jq(element).on("dp.change", {
+        jQuery(element).on("dp.change", { ->
             onChangeListeners.forEach { it() }
             onChangeLiveListeners.forEach { it() }
         })
@@ -71,5 +72,9 @@ import org.w3c.dom.HTMLInputElement
     }
 }
 
+external interface DateTimePickerOptions {
+    var format: String
+}
+
 @Suppress("NOTHING_TO_INLINE")
-inline private fun JQuery.datetimepicker(param: Any?): Unit = asDynamic().datetimepicker(param)
+inline private fun JQuery.datetimepicker(param: DateTimePickerOptions): Unit = asDynamic().datetimepicker(param)

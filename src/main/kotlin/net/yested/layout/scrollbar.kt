@@ -1,14 +1,16 @@
 package net.yested.layout
 
-import jquery.jq
-import jquery.ui.draggable
 import net.yested.*
-import net.yested.utils.css
-import net.yested.utils.on
+import net.yested.jquery.jQuery
+import net.yested.jquery.on
+import net.yested.jqueryui.DraggableEvent
+import net.yested.jqueryui.draggable
+import net.yested.utils.eventHandler
+import net.yested.utils.options
 import net.yested.utils.registerResizeHandler
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.WheelEvent
 import kotlin.js.Math
-import kotlin.js.json
 
 enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionProperty:String, val axis:String, val cssPosProperty:String) {
     VERTICAL(directionProperty = "height", nonDirectionProperty = "width", axis = "y", cssPosProperty = "top"),
@@ -38,9 +40,9 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
 
      fun setTrackerVisible(visibleTracker:Boolean) {
         if (visibleTracker) {
-            jq(handle.element).css("visibility", "visible")
+            jQuery(handle.element).css("visibility", "visible")
         } else {
-            jq(handle.element).css("visibility", "hidden")
+            jQuery(handle.element).css("visibility", "hidden")
         }
     }
 
@@ -56,19 +58,20 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
             handle.style = "${orientation.nonDirectionProperty}: 15px; background-color: #5c92e7; cursor: move; position: relative; ${orientation.cssPosProperty}: 0"
         }
 
-        jq(handle.element).draggable(
-                json(
-                        Pair("axis", orientation.axis),
-                        Pair("containment", "parent"),
-                        Pair("drag", {
-                            val top = jq(handle.element).css(orientation.cssPosProperty).toInt()
-                            updatePosition(top)
-                        })
-                ))
+        jQuery(handle.element).draggable(
+                options {
+                    axis = orientation.axis
+                    containment = "parent"
+                    val dragHandler = eventHandler {
+                        val top = jQuery(this@ScrollBar.handle.element).css(orientation.cssPosProperty).toInt()
+                        updatePosition(top)
+                    }
+                    drag = dragHandler.unsafeCast<DraggableEvent>()
+                })
 
-        jq(element).on("mousewheel") { event ->
-            val e = event.originalEvent
-            val delta = Math.max(-1, Math.min(1, (e.wheelDelta ?: -e.detail) as Int))
+        jQuery(element).on("wheel") { event ->
+            val e = event.originalEvent.unsafeCast<WheelEvent>()
+            val delta = Math.max(-1, Math.min(1, e.deltaX.toInt()))
             event.preventDefault()
             if (delta < 0) {
                 if (currentPosition < numberOfItems) {
@@ -88,18 +91,18 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
         var touchStartMouse:Int = 0
         var touchStartTop:Int = 0
 
-        jq(handle.element).on("touchstart", { event->
-            touchStartTop = jq(handle.element).css(orientation.cssPosProperty).toInt()
+        jQuery(handle.element).on("touchstart", { event->
+            touchStartTop = jQuery(handle.element).css(orientation.cssPosProperty).toInt()
             touchStartMouse = getMouseTouchPosition(event)
             event.preventDefault()
         })
 
-        jq(handle.element).on("touchmove", { event ->
+        jQuery(handle.element).on("touchmove", { event ->
             event.preventDefault()
             val newMousePos = getMouseTouchPosition(event)
             val diff: Int = newMousePos - touchStartMouse
             val newPosition = Math.max(0, Math.min(touchStartTop + diff, trackerDimension - handleDimension))
-            jq(handle.element).css(orientation.cssPosProperty, "${newPosition}px")
+            jQuery(handle.element).css(orientation.cssPosProperty, "${newPosition}px")
             updatePosition(newPosition)
         })
 
@@ -125,14 +128,14 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
 
      var position:Int
         get() = currentPosition
-        set(value:Int) {
+        set(value) {
             currentPosition = value
             changePositionOfHandler()
         }
 
     private fun changePositionOfHandler() {
         val position = (currentPosition.toDouble() * (trackerDimension - handleDimension) / numberOfItems).toInt()
-        jq(handle.element).css(orientation.cssPosProperty, "${position}px")
+        jQuery(handle.element).css(orientation.cssPosProperty, "${position}px")
     }
 
      fun setup(numberOfItems: Int, visibleItems: Int, newPosition: Int) {
@@ -147,14 +150,14 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
     private fun recalculate() {
         trackerDimension = trackerDimension()
         handleDimension = handleDimension().toInt()
-        jq(handle.element).css(orientation.directionProperty, "${handleDimension}")
+        jQuery(handle.element).css(orientation.directionProperty, "${handleDimension}")
     }
 
     private fun trackerDimension() =
             if (orientation == ScrollBarOrientation.VERTICAL) {
-                jq(element).height().toInt()
+                jQuery(element).height().toInt()
             } else {
-                jq(element).width().toInt()
+                jQuery(element).width().toInt()
             }
 
     private fun handleDimension() = Math.max(30, (trackerDimension * visibleItems/numberOfItems).toInt())

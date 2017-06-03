@@ -118,7 +118,7 @@ tagsField.onBeforeItemRemove = { item ->
             tagsField.tags = someData.toTypedArray()
         }
         tagsField.onAddExistingTag = { addingPeople, jqTag ->
-            jqTag.hide { jqTag.fadeIn(400, {}) }
+            jqTag.hide(400) { jqTag.fadeIn(400, {}) }
             showMsg("onAddExistingTag: ${addingPeople.name}")
         }
         tagsField.onAfterItemAdded = { item ->

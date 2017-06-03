@@ -1,15 +1,13 @@
 package complex
 
-import jquery.jq
 import net.yested.*
 import net.yested.bootstrap.*
 import net.yested.bootstrap.smartgrid.CellEditorFactory
 import net.yested.bootstrap.smartgrid.GridColumn
 import net.yested.bootstrap.smartgrid.SmartGrid
 import net.yested.bootstrap.smartgrid.TextInputFilterFactory
+import net.yested.jquery.jQuery
 import net.yested.utils.isIncludedInDOM
-import net.yested.utils.keypress
-import net.yested.utils.on
 import org.w3c.dom.HTMLElement
 import kotlin.browser.window
 import kotlin.js.Math
@@ -45,13 +43,13 @@ class DoubleEditor<TYPE>(
                 millisecondInterval = 100,
                 run = { inputField.element.focus() })
 
-        jq(inputField.element).on("focusout", {
+        jQuery(inputField.element).focusout( {
             if (!closeCalled) {
-                closeHandler() //TODO: tohle se nesmi volat dvakrat!
+                closeHandler() //TODO: This can not be called twice!
             }
         })
 
-        jq(inputField.element).keypress( { event:dynamic ->
+        jQuery(inputField.element).keypress( { event:dynamic ->
             val d = inputField.data.toDoubleOrNull()
             if (event.which == 13 && d != null) {
                 closeCalled = true

@@ -1,7 +1,7 @@
 package net.yested.bootstrap
 
-import jquery.JQuery
-import jquery.jq
+import net.yested.jquery.JQuery
+import net.yested.jquery.jQuery
 import net.yested.whenAddedToDom
 import org.w3c.dom.HTMLElement
 
@@ -32,7 +32,7 @@ inline private fun JQuery.tooltip(options: Any): Unit = asDynamic().tooltip(opti
 
  fun addTooltip(element: HTMLElement, options: TooltipOptions = TooltipOptions(), title: HTMLElement.()->String) {
     element.whenAddedToDom {
-        jq(element).tooltip(object {
+        jQuery(element).tooltip(object {
             val animation = options.animation
             val delay = object {val show = options.delay.show; val hide = options.delay.hide}
             val html = options.html
@@ -46,12 +46,12 @@ inline private fun JQuery.tooltip(options: Any): Unit = asDynamic().tooltip(opti
 
  fun removeTooltip(element: HTMLElement) {
     element.whenAddedToDom {
-        jq(element).tooltip("destroy")
+        jQuery(element).tooltip("destroy")
     }
 }
 
  fun showTooltip(element: HTMLElement) {
     element.whenAddedToDom {
-        jq(element).tooltip("show")
+        jQuery(element).tooltip("show")
     }
 }

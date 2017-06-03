@@ -1,13 +1,10 @@
 package net.yested.bootstrap
 
-import net.yested.Component
-import net.yested.createElement
-import net.yested.with
-import jquery.jq
-import net.yested.HTMLComponent
-import net.yested.Div
-import net.yested.utils.disableSelection
-import net.yested.utils.sortable
+import net.yested.*
+import net.yested.jquery.jQuery
+import net.yested.jqueryui.sortable
+import net.yested.utils.eventHandler
+import net.yested.utils.options
 import org.w3c.dom.HTMLElement
 
  abstract class PanelContainer(layoutChangeHandler:Function0<Unit>? = null) : Component {
@@ -19,11 +16,10 @@ import org.w3c.dom.HTMLElement
     init {
 
         element.setAttribute("class", "list-unstyled")
-        jq(element).disableSelection()
-        jq(element).sortable(
-                object {
-                    val handle = ".panel-heading"
-                    val update = {
+        jQuery(element).sortable(
+                options {
+                    handle = ".panel-heading"
+                    update = eventHandler {
                         if (layoutChangeHandler != null) {
                             layoutChangeHandler()
                         }

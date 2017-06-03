@@ -1,11 +1,9 @@
 package net.yested.bootstrap
 
-import jquery.JQuery
-import jquery.jq
-import net.yested.fadeIn
-import net.yested.hide
-import net.yested.utils.off
-import net.yested.utils.on
+import net.yested.jquery.JQuery
+import net.yested.jquery.JQueryEventObject
+import net.yested.jquery.jQuery
+import net.yested.jquery.on
 import net.yested.whenAddedToDom
 
  enum class TagsInputFieldType(val className: String) {
@@ -24,8 +22,8 @@ private fun JQuery.tagsinput(command: dynamic, data: dynamic): dynamic = asDynam
 inline
 private fun JQuery.tagsinput(command: dynamic): dynamic = asDynamic().tagsinput(command)
 
-private data class TagsInputBeforeEvent<T>(val item: T, var cancel: Boolean)
-private data class TagsInputAfterEvent<T>(val item: T)
+private abstract class TagsInputBeforeEvent<T>(val item: T, var cancel: Boolean) : JQueryEventObject
+private abstract class TagsInputAfterEvent<T>(val item: T) : JQueryEventObject
 
  enum class BeforeEventPermission {
     PREVENT,
@@ -45,7 +43,7 @@ private fun <T> tagsInputBeforeEventHandler(event: TagsInputBeforeEvent<T>, func
                                inputSize: InputSize = InputSize.DEFAULT) : InputField<Array<T>>(inputSize, placeholder = null, type = "text") {
 
      var maxTagCount: Int? = null
-     var onAddExistingTag: (T, JQuery) -> Unit = { item, jqTag -> jqTag.hide { jqTag.fadeIn(400, {}) } }
+     var onAddExistingTag: (T, JQuery) -> Unit = { item, jqTag -> jqTag.hide(400) { jqTag.fadeIn(400) } }
      var onBeforeItemAdd: ((T) -> BeforeEventPermission)? = null
      var onAfterItemAdded: ((T) -> Unit)? = null
      var onBeforeItemRemove: ((T) -> BeforeEventPermission)? = null
@@ -73,21 +71,21 @@ private fun <T> tagsInputBeforeEventHandler(event: TagsInputBeforeEvent<T>, func
         if (!initialized) {
             return
         }
-        jq(this.element).tagsinput("add", newElem)
+        jQuery(this.element).tagsinput("add", newElem)
     }
 
      fun remove(newElem: T) {
         if (!initialized) {
             return
         }
-        jq(this.element).tagsinput("remove", newElem)
+        jQuery(this.element).tagsinput("remove", newElem)
     }
 
      fun removeAll() {
         if (!initialized) {
             return
         }
-        jq(this.element).tagsinput("removeAll")
+        jQuery(this.element).tagsinput("removeAll")
     }
 
     override fun clear() {
@@ -98,28 +96,28 @@ private fun <T> tagsInputBeforeEventHandler(event: TagsInputBeforeEvent<T>, func
         if (!initialized) {
             return
         }
-        jq(this.element).tagsinput("focus")
+        jQuery(this.element).tagsinput("focus")
     }
 
      fun input(): JQuery =
             if (!initialized) {
-                jq(this.element)
+                jQuery(this.element)
             } else {
-                jq(this.element).tagsinput("input")
+                jQuery(this.element).tagsinput("input")
             }
 
      fun refresh() {
         if (!initialized) {
             return
         }
-        jq(this.element).tagsinput("refresh")
+        jQuery(this.element).tagsinput("refresh")
     }
 
      fun destroy() {
         if (!initialized) {
             return
         }
-        val jqElement = jq(this.element);
+        val jqElement = jQuery(this.element);
         jqElement.tagsinput("destroy")
         jqElement.off("beforeItemAdd")
         jqElement.off("itemAdded")
@@ -132,7 +130,7 @@ private fun <T> tagsInputBeforeEventHandler(event: TagsInputBeforeEvent<T>, func
         if (initialized || (calledAutomatically && dontInitializeAutomatically)) {
             return
         }
-        val jqElement = jq(this.element)
+        val jqElement = jQuery(this.element)
         this.element.removeAttribute("placeholder")
         val options = object {
             val tagClass = { item: T -> "label label-${typeFactory(item).className}" }
@@ -150,17 +148,17 @@ private fun <T> tagsInputBeforeEventHandler(event: TagsInputBeforeEvent<T>, func
             js("delete options.itemText")
         }
         jqElement.tagsinput(options)
-        jqElement.on("beforeItemAdd", { event -> tagsInputBeforeEventHandler(event, onBeforeItemAdd) })
-        jqElement.on("itemAdded", { event -> onAfterItemAdded?.invoke(event.item) })
-        jqElement.on("beforeItemRemove", { event -> tagsInputBeforeEventHandler(event, onBeforeItemRemove) })
-        jqElement.on("itemRemoved", { event -> onAfterItemRemoved?.invoke(event.item) })
+        jqElement.on("beforeItemAdd", { event: TagsInputBeforeEvent<T> -> tagsInputBeforeEventHandler(event, onBeforeItemAdd) })
+        jqElement.on("itemAdded", { event: TagsInputAfterEvent<T> -> onAfterItemAdded?.invoke(event.item) })
+        jqElement.on("beforeItemRemove", { event: TagsInputBeforeEvent<T> -> tagsInputBeforeEventHandler(event, onBeforeItemRemove) })
+        jqElement.on("itemRemoved", { event: TagsInputAfterEvent<T> -> onAfterItemRemoved?.invoke(event.item) })
         initialized = true
     }
 
      var tags: Array<T>
         get() {
             return if (initialized) {
-                jq(this.element).tagsinput("items")
+                jQuery(this.element).tagsinput("items")
             } else {
                 arrayOf<T>()
             }

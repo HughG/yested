@@ -1,7 +1,7 @@
 package net.yested.bootstrap
 
-import jquery.JQuery
-import jquery.jq
+import net.yested.jquery.JQuery
+import net.yested.jquery.jQuery
 import net.yested.*
 
  @Suppress("NOTHING_TO_INLINE")
@@ -75,12 +75,12 @@ import net.yested.*
                 }
             }
         }
-        jq(dialog!!.element).modal("show")
+        jQuery(dialog!!.element).modal("show")
     }
 
     fun close() {
         dialog?.let {
-            jq(dialog!!.element).modal("hide")
+            jQuery(dialog!!.element).modal("hide")
         }
     }
 
