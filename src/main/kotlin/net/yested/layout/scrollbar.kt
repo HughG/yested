@@ -62,11 +62,10 @@ enum class ScrollBarOrientation(val directionProperty:String, val nonDirectionPr
                 options {
                     axis = orientation.axis
                     containment = "parent"
-                    val dragHandler = eventHandler {
+                    drag = eventHandler {
                         val top = jQuery(this@ScrollBar.handle.element).css(orientation.cssPosProperty).toInt()
                         updatePosition(top)
                     }
-                    drag = dragHandler.unsafeCast<DraggableEvent>()
                 })
 
         jQuery(element).on("wheel") { event ->
